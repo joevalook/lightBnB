@@ -182,10 +182,36 @@ exports.getAllProperties = getAllProperties;
  * @param {{}} property An object containing all of the property details.
  * @return {Promise<{}>} A promise to the property.
  */
-const addProperty = function(property) {
-  const propertyId = Object.keys(properties).length + 1;
-  property.id = propertyId;
-  properties[propertyId] = property;
-  return Promise.resolve(property);
-}
+
+ const addProperty = (propertyObj) => {
+  return pool
+    .query(`
+    INSERT INTO properties(owner_id,
+      title,
+      description,
+      thumbnail_photo_url,
+      cover_photo_url,
+      cost_per_night,
+      street,
+      city,
+      province,
+      post_code,
+      country,
+      parking_spaces,
+      number_of_bathrooms,
+      number_of_bedrooms)
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
+    RETURNING *;
+    `, [propertyObj.owner_id, propertyObj.title, propertyObj.description, propertyObj.thumbnail_photo_url, propertyObj.cover_photo_url, propertyObj.cost_per_night, propertyObj.street, propertyObj.city, propertyObj.province, propertyObj.post_code, propertyObj.country, propertyObj.parking_spaces, propertyObj.number_of_bathrooms, propertyObj.number_of_bedrooms])
+    .then((result) => result.rows[0])
+    .catch((err) => {
+      return (err.message);
+    });
+};
+// const addProperty = function(property) {
+//   const propertyId = Object.keys(properties).length + 1;
+//   property.id = propertyId;
+//   properties[propertyId] = property;
+//   return Promise.resolve(property);
+// }
 exports.addProperty = addProperty;
